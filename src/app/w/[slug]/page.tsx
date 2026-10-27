@@ -6,11 +6,14 @@ import { WebsiteTemplateRenderer } from "@/features/websites/templates/WebsiteTe
 
 interface PageProps {
   params: Promise<{ slug: string }>;
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export const instant = false;
 
 export async function generateMetadata({ params }: PageProps) {
+  await connection();
+
   const { slug } = await params;
   const cleanSlug = slug.toLowerCase().trim();
   const supabase = await createClient();
@@ -36,10 +39,17 @@ export async function generateMetadata({ params }: PageProps) {
   };
 }
 
-export default async function PublicWeddingPage({ params }: PageProps) {
+export default async function PublicWeddingPage({ params, searchParams }: PageProps) {
   await connection();
 
   const { slug } = await params;
+  const search = searchParams ? await searchParams : {};
+  const rsvpToken =
+    typeof search.rsvp === "string"
+      ? search.rsvp
+      : typeof search.token === "string"
+      ? search.token
+      : null;
   const cleanSlug = slug.toLowerCase().trim();
 
   const supabase = await createClient();
@@ -92,6 +102,8 @@ export default async function PublicWeddingPage({ params }: PageProps) {
         venueDisplay={pubData.website.venue_display}
         dateDisplay={pubData.website.date_display}
         events={pubData.events || []}
+        slug={cleanSlug}
+        rsvpToken={rsvpToken}
       />
     );
   }
@@ -212,6 +224,8 @@ export default async function PublicWeddingPage({ params }: PageProps) {
       venueDisplay={website.venue_display}
       dateDisplay={website.date_display}
       events={events}
+      slug={cleanSlug}
+      rsvpToken={rsvpToken}
     />
   );
 }

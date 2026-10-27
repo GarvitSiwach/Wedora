@@ -22,6 +22,12 @@ export interface WeddingGuest {
   invitation_status: InvitationStatus;
   dietary_notes: string | null;
   notes: string | null;
+  invitation_token?: string | null;
+  max_attendees: number;
+  attendee_count: number;
+  meal_preference?: string | null;
+  guest_message?: string | null;
+  responded_at?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -53,6 +59,11 @@ export interface WeddingWebsite {
   template: WebsiteTemplate;
   is_published: boolean;
   slug: string;
+  rsvp_enabled?: boolean;
+  rsvp_deadline?: string | null;
+  ask_meal_preference?: boolean;
+  meal_options?: string[];
+  allow_guest_message?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -78,6 +89,37 @@ export interface PublicWeddingPayload {
     template: WebsiteTemplate;
     is_published: boolean;
     slug: string;
+    rsvp_enabled?: boolean;
+    rsvp_deadline?: string | null;
+    ask_meal_preference?: boolean;
+    meal_options?: string[];
+    allow_guest_message?: boolean;
   };
   events: PublicEventItem[];
 }
+
+export interface PublicRsvpGuest {
+  id: string;
+  full_name: string;
+  invitation_status: InvitationStatus;
+  max_attendees: number;
+  attendee_count: number;
+  meal_preference?: string | null;
+  guest_message?: string | null;
+  responded_at?: string | null;
+}
+
+export interface RsvpSettings {
+  rsvp_enabled: boolean;
+  rsvp_deadline: string | null;
+  ask_meal_preference: boolean;
+  meal_options: string[];
+  allow_guest_message: boolean;
+  is_closed: boolean;
+}
+
+export interface PublicRsvpPayload {
+  guest: PublicRsvpGuest;
+  settings: RsvpSettings;
+}
+

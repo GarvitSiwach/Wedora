@@ -12,6 +12,8 @@ interface WebsiteTemplateRendererProps {
   venueDisplay?: string | null;
   dateDisplay?: string | null;
   events: PublicEventItem[];
+  slug?: string;
+  rsvpToken?: string | null;
   isPreview?: boolean;
 }
 
@@ -24,6 +26,8 @@ export function WebsiteTemplateRenderer({
   venueDisplay,
   dateDisplay,
   events,
+  slug,
+  rsvpToken,
   isPreview = false,
 }: WebsiteTemplateRendererProps) {
   switch (template) {
@@ -37,6 +41,8 @@ export function WebsiteTemplateRenderer({
           venueDisplay={venueDisplay}
           dateDisplay={dateDisplay}
           events={events}
+          slug={slug}
+          rsvpToken={rsvpToken}
           isPreview={isPreview}
         />
       );
@@ -50,6 +56,8 @@ export function WebsiteTemplateRenderer({
           venueDisplay={venueDisplay}
           dateDisplay={dateDisplay}
           events={events}
+          slug={slug}
+          rsvpToken={rsvpToken}
           isPreview={isPreview}
         />
       );
@@ -64,6 +72,8 @@ export function WebsiteTemplateRenderer({
           venueDisplay={venueDisplay}
           dateDisplay={dateDisplay}
           events={events}
+          slug={slug}
+          rsvpToken={rsvpToken}
           isPreview={isPreview}
         />
       );

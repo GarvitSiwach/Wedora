@@ -8,16 +8,19 @@ interface GuestManagerProps {
   weddingId: string;
   initialGuests: WeddingGuest[];
   userCanEdit: boolean;
+  weddingSlug?: string;
 }
 
 export function GuestManager({
   weddingId,
   initialGuests,
   userCanEdit,
+  weddingSlug,
 }: GuestManagerProps) {
   const [guests, setGuests] = useState<WeddingGuest[]>(initialGuests);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | InvitationStatus>("all");
+  const [copiedTokenId, setCopiedTokenId] = useState<string | null>(null);
 
   // Dialog states
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -30,6 +33,7 @@ export function GuestManager({
   const [phone, setPhone] = useState("");
   const [householdName, setHouseholdName] = useState("");
   const [invitationStatus, setInvitationStatus] = useState<InvitationStatus>("pending");
+  const [maxAttendees, setMaxAttendees] = useState(1);
   const [dietaryNotes, setDietaryNotes] = useState("");
   const [notes, setNotes] = useState("");
 
@@ -43,6 +47,18 @@ export function GuestManager({
   const pendingCount = guests.filter((g) => g.invitation_status === "pending").length;
   const declinedCount = guests.filter((g) => g.invitation_status === "declined").length;
 
+  const handleCopyRsvpLink = (guest: WeddingGuest) => {
+    if (typeof window === "undefined") return;
+    const origin = window.location.origin;
+    const token = guest.invitation_token || guest.id;
+    const slug = weddingSlug || "celebration";
+    const url = `${origin}/w/${slug}?rsvp=${token}`;
+
+    navigator.clipboard.writeText(url);
+    setCopiedTokenId(guest.id);
+    setTimeout(() => setCopiedTokenId(null), 2500);
+  };
+
   const openAddDialog = () => {
     setEditingGuest(null);
     setFullName("");
@@ -50,6 +66,7 @@ export function GuestManager({
     setPhone("");
     setHouseholdName("");
     setInvitationStatus("pending");
+    setMaxAttendees(1);
     setDietaryNotes("");
     setNotes("");
     setFormError(null);
@@ -63,6 +80,7 @@ export function GuestManager({
     setPhone(guest.phone || "");
     setHouseholdName(guest.household_name || "");
     setInvitationStatus(guest.invitation_status);
+    setMaxAttendees(guest.max_attendees || 1);
     setDietaryNotes(guest.dietary_notes || "");
     setNotes(guest.notes || "");
     setFormError(null);
@@ -92,6 +110,7 @@ export function GuestManager({
       phone: phone.trim() || null,
       household_name: householdName.trim() || null,
       invitation_status: invitationStatus,
+      max_attendees: Math.max(1, maxAttendees || 1),
       dietary_notes: dietaryNotes.trim() || null,
       notes: notes.trim() || null,
     };
@@ -404,29 +423,54 @@ export function GuestManager({
                     {/* Status Badge */}
                     <td className="px-4 py-4">
                       {guest.invitation_status === "confirmed" && (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-emerald-800 dark:border-emerald-900/40 dark:bg-emerald-950/40 dark:text-emerald-300">
-                          Confirmed
-                        </span>
+                        <div>
+                          <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-emerald-800 dark:border-emerald-900/40 dark:bg-emerald-950/40 dark:text-emerald-300">
+                            Confirmed
+                          </span>
+                          <span className="block text-[11px] font-mono text-emerald-800 dark:text-emerald-300 mt-1">
+                            {guest.attendee_count || 1} / {guest.max_attendees} attending
+                          </span>
+                        </div>
                       )}
                       {guest.invitation_status === "invited" && (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-blue-800 dark:border-blue-900/40 dark:bg-blue-950/40 dark:text-blue-300">
-                          Invited
-                        </span>
+                        <div>
+                          <span className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-blue-800 dark:border-blue-900/40 dark:bg-blue-950/40 dark:text-blue-300">
+                            Invited
+                          </span>
+                          <span className="block text-[11px] font-mono text-[var(--color-taupe)] mt-1">
+                            Party of up to {guest.max_attendees}
+                          </span>
+                        </div>
                       )}
                       {guest.invitation_status === "pending" && (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/40 dark:text-amber-300">
-                          Pending
-                        </span>
+                        <div>
+                          <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/40 dark:text-amber-300">
+                            Pending
+                          </span>
+                          <span className="block text-[11px] font-mono text-[var(--color-taupe)] mt-1">
+                            Party of up to {guest.max_attendees}
+                          </span>
+                        </div>
                       )}
                       {guest.invitation_status === "declined" && (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-[var(--color-border)] bg-[var(--color-ivory)] px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[var(--color-taupe)]">
-                          Declined
-                        </span>
+                        <div>
+                          <span className="inline-flex items-center gap-1 rounded-full border border-[var(--color-border)] bg-[var(--color-ivory)] px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[var(--color-taupe)]">
+                            Declined
+                          </span>
+                          <span className="block text-[11px] font-mono text-[var(--color-taupe-muted)] mt-1">
+                            0 attending
+                          </span>
+                        </div>
                       )}
                     </td>
 
                     {/* Dietary / Notes */}
                     <td className="px-4 py-4 text-[var(--color-muted)] max-w-xs">
+                      {guest.meal_preference && (
+                        <span className="inline-block rounded-md bg-[var(--color-surface)] border border-[var(--color-border-subtle)] px-2 py-0.5 text-[10px] font-medium text-[var(--color-foreground)] mr-1 mb-1">
+                          🍽️ {guest.meal_preference}
+                        </span>
+                      )}
                       {guest.dietary_notes && (
                         <span className="inline-block rounded-md bg-[var(--color-ivory)] px-2 py-0.5 text-[10px] font-medium text-[var(--color-foreground)] mr-1 mb-1">
                           🥗 {guest.dietary_notes}
@@ -435,7 +479,7 @@ export function GuestManager({
                       {guest.notes && (
                         <p className="text-[11px] text-[var(--color-taupe)] truncate">{guest.notes}</p>
                       )}
-                      {!guest.dietary_notes && !guest.notes && (
+                      {!guest.meal_preference && !guest.dietary_notes && !guest.notes && (
                         <span className="text-[var(--color-taupe-muted)] italic text-[11px]">—</span>
                       )}
                     </td>
@@ -444,6 +488,14 @@ export function GuestManager({
                     {userCanEdit && (
                       <td className="px-4 py-4 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleCopyRsvpLink(guest)}
+                            className="rounded-md border border-[var(--color-border)] px-2.5 py-1 text-[11px] font-medium text-[var(--color-foreground)] hover:bg-[var(--color-ivory)] transition-colors inline-flex items-center gap-1"
+                            title="Copy personalized RSVP link"
+                          >
+                            <span>{copiedTokenId === guest.id ? "✓ Copied" : "🔗 RSVP Link"}</span>
+                          </button>
                           <button
                             type="button"
                             onClick={() => openEditDialog(guest)}
@@ -580,26 +632,78 @@ export function GuestManager({
                 </div>
               </div>
 
-              {/* Status */}
-              <div>
-                <label
-                  htmlFor="guestStatus"
-                  className="block text-xs font-medium uppercase tracking-wider text-[var(--color-foreground)]"
-                >
-                  Invitation Status
-                </label>
-                <select
-                  id="guestStatus"
-                  value={invitationStatus}
-                  onChange={(e) => setInvitationStatus(e.target.value as InvitationStatus)}
-                  className="mt-1.5 block w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] px-3.5 py-2 text-xs text-[var(--color-foreground)] focus:border-[var(--color-foreground)] focus:outline-hidden"
-                >
-                  <option value="pending">Pending</option>
-                  <option value="invited">Invited</option>
-                  <option value="confirmed">Confirmed (Attending)</option>
-                  <option value="declined">Declined</option>
-                </select>
+              {/* Status & Max Attendees */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label
+                    htmlFor="guestStatus"
+                    className="block text-xs font-medium uppercase tracking-wider text-[var(--color-foreground)]"
+                  >
+                    Invitation Status
+                  </label>
+                  <select
+                    id="guestStatus"
+                    value={invitationStatus}
+                    onChange={(e) => setInvitationStatus(e.target.value as InvitationStatus)}
+                    className="mt-1.5 block w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] px-3.5 py-2 text-xs text-[var(--color-foreground)] focus:border-[var(--color-foreground)] focus:outline-hidden"
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="invited">Invited</option>
+                    <option value="confirmed">Confirmed (Attending)</option>
+                    <option value="declined">Declined</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="guestMaxAttendees"
+                    className="block text-xs font-medium uppercase tracking-wider text-[var(--color-foreground)]"
+                  >
+                    Permitted Party Size
+                  </label>
+                  <input
+                    id="guestMaxAttendees"
+                    type="number"
+                    min={1}
+                    max={20}
+                    value={maxAttendees}
+                    onChange={(e) => setMaxAttendees(Math.max(1, parseInt(e.target.value, 10) || 1))}
+                    className="mt-1.5 block w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] px-3.5 py-2 text-xs text-[var(--color-foreground)] focus:border-[var(--color-foreground)] focus:outline-hidden"
+                  />
+                </div>
               </div>
+
+              {/* RSVP Response Summary Box for Editing Guests */}
+              {editingGuest && (editingGuest.responded_at || editingGuest.invitation_status === "confirmed" || editingGuest.invitation_status === "declined") && (
+                <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-ivory)]/40 p-3.5 space-y-1 text-xs">
+                  <span className="block font-mono text-[10px] uppercase tracking-wider text-[var(--color-taupe)]">
+                    Digital RSVP Details
+                  </span>
+                  <p className="text-[var(--color-foreground)]">
+                    <strong>Status:</strong>{" "}
+                    {editingGuest.invitation_status === "confirmed"
+                      ? `Confirmed (${editingGuest.attendee_count || 1} attending)`
+                      : editingGuest.invitation_status === "declined"
+                      ? "Declined"
+                      : "Awaiting Reply"}
+                  </p>
+                  {editingGuest.meal_preference && (
+                    <p className="text-[var(--color-muted)]">
+                      <strong>Meal Choice:</strong> {editingGuest.meal_preference}
+                    </p>
+                  )}
+                  {editingGuest.guest_message && (
+                    <p className="text-[var(--color-muted)] italic">
+                      &ldquo;{editingGuest.guest_message}&rdquo;
+                    </p>
+                  )}
+                  {editingGuest.responded_at && (
+                    <p className="text-[11px] font-mono text-[var(--color-taupe-muted)]">
+                      Responded: {new Date(editingGuest.responded_at).toLocaleDateString()}
+                    </p>
+                  )}
+                </div>
+              )}
 
               {/* Dietary Notes */}
               <div>

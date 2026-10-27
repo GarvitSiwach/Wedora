@@ -1,4 +1,5 @@
 import { PublicEventItem } from "@/types";
+import { PublicRsvpSection } from "@/features/rsvp/PublicRsvpSection";
 
 interface TemplateProps {
   title: string;
@@ -8,6 +9,8 @@ interface TemplateProps {
   venueDisplay?: string | null;
   dateDisplay?: string | null;
   events: PublicEventItem[];
+  slug?: string;
+  rsvpToken?: string | null;
   isPreview?: boolean;
 }
 
@@ -19,6 +22,8 @@ export function MinimalEditorialTemplate({
   venueDisplay,
   dateDisplay,
   events,
+  slug,
+  rsvpToken,
   isPreview = false,
 }: TemplateProps) {
   const formatTime = (timeStr: string | null) => {
@@ -153,6 +158,14 @@ export function MinimalEditorialTemplate({
           </div>
         </section>
       )}
+
+      {/* RSVP Section */}
+      <PublicRsvpSection
+        slug={slug || ""}
+        initialToken={rsvpToken}
+        template="minimal_editorial"
+        coupleNames={coupleNames}
+      />
 
       {/* Elegant Minimal Footer */}
       <footer className="border-t border-[#e8e5de] py-12 text-center text-xs text-[#8c827a]">

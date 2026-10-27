@@ -1,4 +1,5 @@
 import { PublicEventItem } from "@/types";
+import { PublicRsvpSection } from "@/features/rsvp/PublicRsvpSection";
 
 interface TemplateProps {
   title: string;
@@ -8,6 +9,8 @@ interface TemplateProps {
   venueDisplay?: string | null;
   dateDisplay?: string | null;
   events: PublicEventItem[];
+  slug?: string;
+  rsvpToken?: string | null;
   isPreview?: boolean;
 }
 
@@ -19,6 +22,8 @@ export function BotanicalRomanceTemplate({
   venueDisplay,
   dateDisplay,
   events,
+  slug,
+  rsvpToken,
   isPreview = false,
 }: TemplateProps) {
   const formatTime = (timeStr: string | null) => {
@@ -157,6 +162,14 @@ export function BotanicalRomanceTemplate({
           </div>
         </section>
       )}
+
+      {/* RSVP Section */}
+      <PublicRsvpSection
+        slug={slug || ""}
+        initialToken={rsvpToken}
+        template="botanical_romance"
+        coupleNames={coupleNames}
+      />
 
       {/* Botanical Footer */}
       <footer className="border-t border-[#e1e9e3] py-12 text-center text-xs text-[#587366]">

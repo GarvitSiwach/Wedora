@@ -1,4 +1,5 @@
 import { PublicEventItem } from "@/types";
+import { PublicRsvpSection } from "@/features/rsvp/PublicRsvpSection";
 
 interface TemplateProps {
   title: string;
@@ -8,6 +9,8 @@ interface TemplateProps {
   venueDisplay?: string | null;
   dateDisplay?: string | null;
   events: PublicEventItem[];
+  slug?: string;
+  rsvpToken?: string | null;
   isPreview?: boolean;
 }
 
@@ -19,6 +22,8 @@ export function RoyalIndianTemplate({
   venueDisplay,
   dateDisplay,
   events,
+  slug,
+  rsvpToken,
   isPreview = false,
 }: TemplateProps) {
   const formatTime = (timeStr: string | null) => {
@@ -171,6 +176,14 @@ export function RoyalIndianTemplate({
           </div>
         </section>
       )}
+
+      {/* RSVP Section */}
+      <PublicRsvpSection
+        slug={slug || ""}
+        initialToken={rsvpToken}
+        template="royal_indian"
+        coupleNames={coupleNames}
+      />
 
       {/* Royal Footer */}
       <footer className="border-t border-[#e8dfcf] bg-[#4a0e17] py-12 text-center text-xs text-[#d4af37]">

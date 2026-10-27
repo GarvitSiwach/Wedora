@@ -58,6 +58,13 @@ export function WebsiteEditor({
   );
   const [slug, setSlug] = useState(initialSlug);
   const [isPublished, setIsPublished] = useState(initialWebsite?.is_published || false);
+  const [rsvpEnabled, setRsvpEnabled] = useState(initialWebsite?.rsvp_enabled ?? true);
+  const [rsvpDeadline, setRsvpDeadline] = useState(initialWebsite?.rsvp_deadline || "");
+  const [askMealPreference, setAskMealPreference] = useState(initialWebsite?.ask_meal_preference ?? true);
+  const [mealOptionsStr, setMealOptionsStr] = useState(
+    (initialWebsite?.meal_options || ["Standard", "Vegetarian", "Vegan", "Halal", "Kosher", "Child"]).join(", ")
+  );
+  const [allowGuestMessage, setAllowGuestMessage] = useState(initialWebsite?.allow_guest_message ?? true);
 
   // UI modes & status
   const [activeView, setActiveView] = useState<"edit" | "preview">("edit");
@@ -127,6 +134,11 @@ export function WebsiteEditor({
       template,
       slug: cleanSlug,
       is_published: publishTarget,
+      rsvp_enabled: rsvpEnabled,
+      rsvp_deadline: rsvpDeadline.trim() || null,
+      ask_meal_preference: askMealPreference,
+      meal_options: mealOptionsStr.split(",").map((s) => s.trim()).filter(Boolean),
+      allow_guest_message: allowGuestMessage,
     };
 
     startTransition(async () => {
@@ -531,6 +543,135 @@ export function WebsiteEditor({
                   placeholder="Share a short anecdote of how you met, your engagement story, or what this celebration means to you..."
                   className="mt-1.5 block w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] px-3.5 py-2.5 text-xs text-[var(--color-foreground)] placeholder:text-[var(--color-taupe-muted)] focus:border-[var(--color-foreground)] focus:outline-hidden"
                 />
+              </div>
+            </div>
+
+            {/* RSVP Settings Card */}
+            <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 sm:p-8 space-y-6">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[var(--color-taupe)]">
+                Step 3 • Guest Responses
+              </span>
+              <h3 className="mt-1 font-serif text-2xl font-normal text-[var(--color-foreground)]">
+                Digital RSVP Preferences
+              </h3>
+              <p className="mt-1 text-xs text-[var(--color-muted)]">
+                Configure attendance deadlines, dining options, and guest message settings.
+              </p>
+
+              <div className="space-y-4 pt-2">
+                {/* Accept RSVPs Toggle */}
+                <div className="flex items-center justify-between p-3.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-ivory)]/40">
+                  <div>
+                    <span className="block text-xs font-medium text-[var(--color-foreground)]">
+                      Accept Online RSVPs
+                    </span>
+                    <span className="block text-[11px] text-[var(--color-muted)]">
+                      Allow guests with invitation tokens to submit their attendance
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setRsvpEnabled(!rsvpEnabled)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      rsvpEnabled ? "bg-emerald-600" : "bg-[var(--color-taupe)]"
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        rsvpEnabled ? "translate-x-6" : "translate-x-1"
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {/* RSVP Deadline */}
+                <div>
+                  <label
+                    htmlFor="rsvpDeadlineInput"
+                    className="block text-xs font-medium uppercase tracking-wider text-[var(--color-foreground)]"
+                  >
+                    RSVP Response Deadline
+                  </label>
+                  <input
+                    id="rsvpDeadlineInput"
+                    type="date"
+                    value={rsvpDeadline}
+                    onChange={(e) => setRsvpDeadline(e.target.value)}
+                    className="mt-1.5 block w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] px-3.5 py-2 text-xs text-[var(--color-foreground)] focus:border-[var(--color-foreground)] focus:outline-hidden"
+                  />
+                  <span className="mt-1 block text-[11px] text-[var(--color-taupe-muted)]">
+                    Responses will automatically close after this date.
+                  </span>
+                </div>
+
+                {/* Request Dining Preferences */}
+                <div className="flex items-center justify-between p-3.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-ivory)]/40">
+                  <div>
+                    <span className="block text-xs font-medium text-[var(--color-foreground)]">
+                      Request Dining Choices
+                    </span>
+                    <span className="block text-[11px] text-[var(--color-muted)]">
+                      Provide a selection of meal choices for attending guests
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setAskMealPreference(!askMealPreference)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      askMealPreference ? "bg-emerald-600" : "bg-[var(--color-taupe)]"
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        askMealPreference ? "translate-x-6" : "translate-x-1"
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {askMealPreference && (
+                  <div>
+                    <label
+                      htmlFor="mealOptionsInput"
+                      className="block text-xs font-medium uppercase tracking-wider text-[var(--color-foreground)]"
+                    >
+                      Dining Choices (Comma separated)
+                    </label>
+                    <input
+                      id="mealOptionsInput"
+                      type="text"
+                      value={mealOptionsStr}
+                      onChange={(e) => setMealOptionsStr(e.target.value)}
+                      placeholder="Standard, Vegetarian, Vegan, Halal, Kosher, Child"
+                      className="mt-1.5 block w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] px-3.5 py-2 text-xs text-[var(--color-foreground)] focus:border-[var(--color-foreground)] focus:outline-hidden"
+                    />
+                  </div>
+                )}
+
+                {/* Allow Guest Messages */}
+                <div className="flex items-center justify-between p-3.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-ivory)]/40">
+                  <div>
+                    <span className="block text-xs font-medium text-[var(--color-foreground)]">
+                      Guest Notes & Wishes
+                    </span>
+                    <span className="block text-[11px] text-[var(--color-muted)]">
+                      Allow attending guests to submit a personal note
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setAllowGuestMessage(!allowGuestMessage)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      allowGuestMessage ? "bg-emerald-600" : "bg-[var(--color-taupe)]"
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        allowGuestMessage ? "translate-x-6" : "translate-x-1"
+                      }`}
+                    />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
