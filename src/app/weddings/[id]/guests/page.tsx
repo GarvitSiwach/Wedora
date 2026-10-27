@@ -36,6 +36,7 @@ export default async function WeddingGuestsPage({ params }: PageProps) {
       members={data.members}
       initialGuests={data.guests}
       initialEvents={data.events}
+      initialWebsite={data.website}
       userCanEdit={data.userCanEdit}
       defaultTab="guests"
     />

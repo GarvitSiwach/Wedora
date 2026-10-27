@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { WeddingGuest, WeddingEvent } from "@/types";
+import { WeddingGuest, WeddingEvent, WeddingWebsite } from "@/types";
 import { GuestManager } from "@/features/guests/GuestManager";
 import { EventManager } from "@/features/events/EventManager";
+import { WebsiteEditor } from "@/features/websites/WebsiteEditor";
 import { SignOutButton } from "../SignOutButton";
 
 export interface WeddingData {
@@ -39,6 +40,7 @@ interface WorkspaceViewProps {
   members: MemberData[];
   initialGuests: WeddingGuest[];
   initialEvents: WeddingEvent[];
+  initialWebsite: WeddingWebsite | null;
   userCanEdit: boolean;
   defaultTab?: TabKey;
 }
@@ -51,6 +53,7 @@ export function WorkspaceView({
   members,
   initialGuests,
   initialEvents,
+  initialWebsite,
   userCanEdit,
   defaultTab = "overview",
 }: WorkspaceViewProps) {
@@ -165,17 +168,11 @@ export function WorkspaceView({
       action: () => setActiveTab("events"),
     },
     {
-      title: "Invitations",
-      description: "Ad-free digital invitations, save-the-dates, and reminders.",
+      title: "Invitations & Website",
+      description: "Customize your wedding website, choose a visual template, and publish your URL.",
       icon: "💌",
-      badge: "Phase 6",
-      action: () =>
-        setActiveNoticeModal({
-          title: "Digital Invitations Suite",
-          category: "Phase 6 Feature",
-          description:
-            "The ad-free digital invitation suite is scheduled for Phase 6. You will be able to dispatch personalized RSVP links and stationery matching your wedding palette.",
-        }),
+      badge: "Active",
+      action: () => setActiveTab("invitations"),
     },
     {
       title: "Wedding tasks",
@@ -860,39 +857,26 @@ export function WorkspaceView({
             />
           )}
 
-          {/* TAB 4: INVITATIONS */}
+          {/* TAB 4: INVITATIONS & WEDDING WEBSITE */}
           {activeTab === "invitations" && (
-            <div className="rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] p-8 sm:p-12 text-center max-w-3xl mx-auto">
-              <span className="text-3xl" aria-hidden="true">
-                💌
-              </span>
-              <span className="block mt-3 text-[10px] font-mono uppercase tracking-widest text-[var(--color-taupe)]">
-                Phase 6 • Coming Soon
-              </span>
-              <h2 className="mt-2 font-serif text-3xl font-normal text-[var(--color-foreground)]">
-                Digital Invitations & Save-the-Dates
-              </h2>
-              <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-[var(--color-muted)]">
-                Wedora invitations will be completely ad-free and beautifully matched to your aesthetic. When ready in Phase 6, you will be able to dispatch digital suites directly to the guests you have added in the Guests tab.
-              </p>
-
-              <div className="mt-8 flex justify-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("guests")}
-                  className="rounded-full bg-[var(--color-foreground)] px-6 py-2.5 text-xs font-medium text-[var(--color-background)] hover:opacity-90 transition-opacity"
-                >
-                  Manage Guest List &rarr;
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("overview")}
-                  className="rounded-full border border-[var(--color-border)] px-6 py-2.5 text-xs font-medium text-[var(--color-foreground)] hover:bg-[var(--color-ivory)] transition-colors"
-                >
-                  Back to Overview
-                </button>
-              </div>
-            </div>
+            <WebsiteEditor
+              weddingId={wedding.id}
+              weddingTitle={wedding.title}
+              weddingDate={wedding.wedding_date}
+              weddingLocation={wedding.location}
+              defaultSlug={
+                wedding.title
+                  ? wedding.title
+                      .toLowerCase()
+                      .replace(/[^a-z0-9]+/g, "-")
+                      .replace(/^-+|-+$/g, "")
+                      .slice(0, 32)
+                  : "celebration"
+              }
+              initialWebsite={initialWebsite}
+              events={initialEvents}
+              userCanEdit={userCanEdit}
+            />
           )}
 
           {/* TAB 5: TASKS */}

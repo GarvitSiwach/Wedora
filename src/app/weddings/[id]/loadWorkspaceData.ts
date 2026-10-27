@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { connection } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { WeddingGuest, WeddingEvent } from "@/types";
+import { WeddingGuest, WeddingEvent, WeddingWebsite } from "@/types";
 import { MemberData, WeddingData } from "./WorkspaceView";
 
 export async function loadWorkspaceData(id: string) {
@@ -98,6 +98,15 @@ export async function loadWorkspaceData(id: string) {
 
   const events = (rawEvents as unknown as WeddingEvent[]) || [];
 
+  // Fetch website configuration if exists
+  const { data: rawWebsite } = await supabase
+    .from("wedding_websites")
+    .select("*")
+    .eq("wedding_id", id)
+    .maybeSingle();
+
+  const website = (rawWebsite as unknown as WeddingWebsite) || null;
+
   const displayName = profile?.full_name?.trim() || user.email?.split("@")[0] || "Planner";
   const userCanEdit =
     userMembership.role === "owner" ||
@@ -112,6 +121,7 @@ export async function loadWorkspaceData(id: string) {
     members,
     guests,
     events,
+    website,
     userCanEdit,
   };
 }

@@ -38,3 +38,46 @@ export interface WeddingEvent {
   created_at: string;
   updated_at: string;
 }
+
+export type WebsiteTemplate = "minimal_editorial" | "royal_indian" | "botanical_romance";
+
+export interface WeddingWebsite {
+  id: string;
+  wedding_id: string;
+  title: string;
+  couple_names: string;
+  welcome_message: string | null;
+  story: string | null;
+  venue_display: string | null;
+  date_display: string | null;
+  template: WebsiteTemplate;
+  is_published: boolean;
+  slug: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PublicEventItem {
+  id: string;
+  title: string;
+  description: string | null;
+  event_date: string | null;
+  start_time: string | null;
+  end_time: string | null;
+  location: string | null;
+}
+
+export interface PublicWeddingPayload {
+  website: {
+    title: string;
+    couple_names: string;
+    welcome_message: string | null;
+    story: string | null;
+    venue_display: string | null;
+    date_display: string | null;
+    template: WebsiteTemplate;
+    is_published: boolean;
+    slug: string;
+  };
+  events: PublicEventItem[];
+}
