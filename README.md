@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Wedora
 
-## Getting Started
+Wedora is a modern, minimalist, all-in-one wedding management platform built to simplify wedding planning. The platform is completely free with no advertisements, subscriptions, premium tiers, or paywalled features.
 
-First, run the development server:
+## Tech Stack
+
+- **Framework:** [Next.js](https://nextjs.org/) (App Router)
+- **Language:** [TypeScript](https://www.typescriptlang.org/)
+- **Styling:** [Tailwind CSS v4](https://tailwindcss.com/)
+- **Linting:** [ESLint](https://eslint.org/)
+- **Package Manager:** npm
+
+## Prerequisites
+
+Before running the project locally, ensure you have the following installed:
+
+- **Node.js:** `v20.x` or later (LTS recommended)
+- **npm:** `v10.x` or later
+
+## Installation
+
+Clone the repository and install dependencies:
+
+```bash
+npm install
+```
+
+## Available Scripts
+
+### Development Server
+
+Start the local development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) with your browser to view the application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Linting
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Run ESLint to check for code quality and formatting issues:
 
-## Learn More
+```bash
+npm run lint
+```
 
-To learn more about Next.js, take a look at the following resources:
+### Production Build
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Create an optimized production build:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run build
+```
 
-## Deploy on Vercel
+Run the built production application locally:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm run start
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Project Structure
+
+```text
+src/
+├── app/                  # Next.js App Router (pages, layouts, route handlers)
+│   ├── globals.css       # Core design tokens, neutral palette, and base styles
+│   ├── layout.tsx        # Root HTML layout and font configurations
+│   └── page.tsx          # Minimal foundation placeholder
+├── components/           # Shared, reusable UI and layout components
+├── features/             # Feature-driven domain modules
+├── lib/                  # Shared utilities and helper functions
+│   └── utils.ts
+└── types/                # Shared TypeScript interfaces and type declarations
+    └── index.ts
+```
+
+## Design Philosophy
+
+- **Minimalist Aesthetic:** Black and white foundation with neutral grey tones.
+- **Accessible & Mobile-First:** Responsive layouts with intuitive typography and touch targets.
+- **Uncluttered:** Focus on whitespace, clean typography, and subtle borders.
