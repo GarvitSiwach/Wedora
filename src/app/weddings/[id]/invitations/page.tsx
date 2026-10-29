@@ -37,6 +37,7 @@ export default async function WeddingInvitationsPage({ params }: PageProps) {
       initialGuests={data.guests}
       initialEvents={data.events}
       initialWebsite={data.website}
+      initialCateringPlans={data.cateringPlans}
       userCanEdit={data.userCanEdit}
       defaultTab="invitations"
     />

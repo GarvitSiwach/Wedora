@@ -37,6 +37,7 @@ export default async function WeddingRsvpPage({ params }: PageProps) {
       initialGuests={data.guests}
       initialEvents={data.events}
       initialWebsite={data.website}
+      initialCateringPlans={data.cateringPlans}
       userCanEdit={data.userCanEdit}
       defaultTab="rsvp"
     />

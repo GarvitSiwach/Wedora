@@ -123,3 +123,32 @@ export interface PublicRsvpPayload {
   settings: RsvpSettings;
 }
 
+export type CateringStatus = "not_started" | "planning" | "confirmed" | "completed";
+
+export interface MealCategoryPlan {
+  category: string;
+  planned_count: number;
+  notes?: string;
+}
+
+export interface WeddingCateringPlan {
+  id: string;
+  wedding_id: string;
+  event_id: string | null;
+  caterer_name: string | null;
+  caterer_contact_name: string | null;
+  caterer_phone: string | null;
+  caterer_email: string | null;
+  status: CateringStatus;
+  service_style: string | null;
+  menu_notes: string | null;
+  meal_categories: MealCategoryPlan[];
+  catering_deadline: string | null;
+  dietary_notes: string | null;
+  special_instructions: string | null;
+  budget_estimate: number | null;
+  created_at: string;
+  updated_at: string;
+  event?: WeddingEvent | null;
+}
+

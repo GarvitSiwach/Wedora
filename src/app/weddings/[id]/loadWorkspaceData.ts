@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { connection } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { WeddingGuest, WeddingEvent, WeddingWebsite } from "@/types";
+import { WeddingGuest, WeddingEvent, WeddingWebsite, WeddingCateringPlan } from "@/types";
 import { MemberData, WeddingData } from "./WorkspaceView";
 
 export async function loadWorkspaceData(id: string) {
@@ -107,6 +107,31 @@ export async function loadWorkspaceData(id: string) {
 
   const website = (rawWebsite as unknown as WeddingWebsite) || null;
 
+  // Fetch catering plans (scoped to wedding)
+  let cateringPlans: WeddingCateringPlan[] = [];
+  try {
+    const { data: rawCateringPlans, error: cateringError } = await supabase
+      .from("wedding_catering_plans")
+      .select(`
+        *,
+        event:wedding_events (
+          id,
+          title,
+          event_date,
+          start_time,
+          location
+        )
+      `)
+      .eq("wedding_id", id)
+      .order("created_at", { ascending: true });
+
+    if (!cateringError && rawCateringPlans) {
+      cateringPlans = rawCateringPlans as unknown as WeddingCateringPlan[];
+    }
+  } catch {
+    // Graceful fallback if table is not yet populated
+  }
+
   const displayName = profile?.full_name?.trim() || user.email?.split("@")[0] || "Planner";
   const userCanEdit =
     userMembership.role === "owner" ||
@@ -122,6 +147,7 @@ export async function loadWorkspaceData(id: string) {
     guests,
     events,
     website,
+    cateringPlans,
     userCanEdit,
   };
 }

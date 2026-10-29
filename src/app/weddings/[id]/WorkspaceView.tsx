@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { WeddingGuest, WeddingEvent, WeddingWebsite } from "@/types";
+import { WeddingGuest, WeddingEvent, WeddingWebsite, WeddingCateringPlan } from "@/types";
 import { GuestManager } from "@/features/guests/GuestManager";
 import { EventManager } from "@/features/events/EventManager";
 import { WebsiteEditor } from "@/features/websites/WebsiteEditor";
 import { RsvpDashboard } from "@/features/rsvp/RsvpDashboard";
+import { CateringManager } from "@/features/catering/CateringManager";
 import { SignOutButton } from "../SignOutButton";
 
 export interface WeddingData {
@@ -31,7 +32,7 @@ export interface MemberData {
   } | null;
 }
 
-export type TabKey = "overview" | "guests" | "events" | "invitations" | "rsvp" | "tasks" | "settings";
+export type TabKey = "overview" | "guests" | "events" | "invitations" | "rsvp" | "catering" | "tasks" | "settings";
 
 interface WorkspaceViewProps {
   wedding: WeddingData;
@@ -42,6 +43,7 @@ interface WorkspaceViewProps {
   initialGuests: WeddingGuest[];
   initialEvents: WeddingEvent[];
   initialWebsite: WeddingWebsite | null;
+  initialCateringPlans?: WeddingCateringPlan[];
   userCanEdit: boolean;
   defaultTab?: TabKey;
 }
@@ -55,6 +57,7 @@ export function WorkspaceView({
   initialGuests,
   initialEvents,
   initialWebsite,
+  initialCateringPlans = [],
   userCanEdit,
   defaultTab = "overview",
 }: WorkspaceViewProps) {
@@ -150,6 +153,7 @@ export function WorkspaceView({
     { key: "events", label: "Events", icon: "M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5", count: initialEvents.length },
     { key: "invitations", label: "Invitations", icon: "M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" },
     { key: "rsvp", label: "RSVP", icon: "M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z", count: guestConfirmed },
+    { key: "catering", label: "Catering", icon: "M12 6v3m0 0a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zm-8 10h16M10.5 4.5h3", count: initialCateringPlans.length },
     { key: "tasks", label: "Tasks", icon: "M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" },
     { key: "settings", label: "Settings", icon: "M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" },
   ];
@@ -198,16 +202,10 @@ export function WorkspaceView({
     },
     {
       title: "Food and catering",
-      description: "Catering choices, bar packages, dietary flags, and tastings.",
+      description: "Event-aware catering plans, meal counts, and dietary accommodation notes.",
       icon: "🍽️",
-      badge: "Phase 6",
-      action: () =>
-        setActiveNoticeModal({
-          title: "Food and Catering Module",
-          category: "Phase 6 Feature",
-          description:
-            "The food and catering suite is scheduled for Phase 6. Dietary restrictions recorded in your Guest List will connect seamlessly here.",
-        }),
+      badge: "Active",
+      action: () => setActiveTab("catering"),
     },
     {
       title: "Family collaboration",
@@ -895,6 +893,19 @@ export function WorkspaceView({
               weddingId={wedding.id}
               website={initialWebsite}
               initialGuests={initialGuests}
+              userCanEdit={userCanEdit}
+            />
+          )}
+
+          {/* TAB: CATERING & MEAL PREFERENCES */}
+          {activeTab === "catering" && (
+            <CateringManager
+              weddingId={wedding.id}
+              weddingTitle={wedding.title}
+              events={initialEvents}
+              guests={initialGuests}
+              website={initialWebsite}
+              initialCateringPlans={initialCateringPlans}
               userCanEdit={userCanEdit}
             />
           )}
